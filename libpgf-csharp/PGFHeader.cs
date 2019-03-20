@@ -19,7 +19,7 @@ namespace libpgf_csharp
             set { rawHeader.font_name = value; }
         }
 
-        public void LoadHeader(IntPtr ptrToHeader)
+        public PGFHeader(IntPtr ptrToHeader)
         {
             headerPtr = ptrToHeader;
             rawHeader = Marshal.PtrToStructure<PGFHeaderRaw>(ptrToHeader);
