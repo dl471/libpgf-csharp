@@ -1,54 +1,82 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace libpgf_csharp
 {
-    class PGFFont
+    public class PGFFont
     {
 
         private PGFFontRaw rawFont;
+        private string originalFileName;
         private IntPtr fontPtr;
 
-        public PGFFont(IntPtr ptrToFont)
+        public PGFHeader header { get; }
+
+        public PGFFont(string fileName)
         {
+            if (!File.Exists(fileName))
+            {
+                throw new FileNotFoundException("Could not find file", fileName);
+            }
+
+            IntPtr ptrToFont = DLLInterface.LoadFont(fileName);
+            originalFileName = fileName;
+
+            if (ptrToFont == IntPtr.Zero)
+            {
+                throw new Exception("Failed to load font");
+            }
+
             fontPtr = ptrToFont;
             rawFont = Marshal.PtrToStructure<PGFFontRaw>(ptrToFont);
+
+            header = new PGFHeader(rawFont.header);
         }
 
-        public void SaveFont()
+        public bool SaveFont()
         {
-            SaveFont(fontPtr);
+            return SaveFont(fontPtr, originalFileName);
         }
 
-        public void SaveFont(IntPtr ptrToFont)
+        public bool SaveFont(string fileName)
         {
+            return SaveFont(fontPtr, fileName);
+        }
+
+        public bool SaveFont(IntPtr ptrToFont, string fileName)
+        {
+            header.SaveHeader();
+
             Marshal.StructureToPtr<PGFFontRaw>(rawFont, ptrToFont, false);
+
+            return DLLInterface.SaveFont(fontPtr, fileName);
         }
 
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    internal struct PGFFontRaw
+    struct PGFFontRaw
     {
-        IntPtr header;
+        public IntPtr header;
 
-        IntPtr dimension;
-        IntPtr bearingX;
-        IntPtr bearingY;
-        IntPtr advance;
+        public IntPtr dimension;
+        public IntPtr bearingX;
+        public IntPtr bearingY;
+        public IntPtr advance;
 
-        IntPtr charmap;
-        IntPtr charptr;
-        IntPtr shadowmap;
+        public IntPtr charmap;
+        public IntPtr charptr;
+        public IntPtr shadowmap;
 
-        IntPtr glyphdata;
+        public IntPtr glyphdata;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 65536)]
-        IntPtr[] char_glpyh;
+        public IntPtr[] char_glpyh;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
-        IntPtr[] shadow_glpyh;
+        public IntPtr[] shadow_glpyh;
     }
 
-    internal struct F26_Pair
+    struct F26_Pair
     {
         int h;
         int v;
