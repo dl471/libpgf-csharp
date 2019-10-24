@@ -63,14 +63,33 @@ namespace libpgf_csharp
             return DLLInterface.SaveFont(fontPtr, fileName);
         }
 
+        /// <summary>
+        /// Attempt to get glyph by index - returns null on failure
+        /// </summary>
         public PGFGlyph GetGlyphByIndex(int index)
         {
-            return glyphs[index];
+            if (index < glyphs.Length)
+            {
+                return glyphs[index];
+            }
+
+            return null;
         }
 
+        /// <summary>
+        /// Attempt to get glyph by index - returns null on failure
+        /// </summary>
         public PGFGlyph GetGlyphByUcs(int ucs)
         {
-            return ucsDict[ucs];
+            PGFGlyph glyph;
+            bool success = ucsDict.TryGetValue(ucs, out glyph);
+
+            if (success)
+            {
+                return ucsDict[ucs];
+            }
+
+            return null;
         }
 
         private void LoadGlyphs()
