@@ -6,7 +6,7 @@ using System.IO;
 
 namespace libpgf_csharp
 {
-    public class PGFFont
+    public class PGFFont : IDisposable
     {
 
         private PGFFontRaw rawFont;
@@ -59,7 +59,6 @@ namespace libpgf_csharp
             SaveGlyphs();
 
             Marshal.StructureToPtr<PGFFontRaw>(rawFont, ptrToFont, false);
-
             return DLLInterface.SaveFont(fontPtr, fileName);
         }
 
@@ -155,6 +154,40 @@ namespace libpgf_csharp
                 }
             }
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+
+                System.Diagnostics.Debug.WriteLine("Disposing of font");
+                DLLInterface.FreeFont(fontPtr);
+                
+                disposedValue = true;
+            }
+        }
+
+        ~PGFFont()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
+        }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+        #endregion
 
     }
 

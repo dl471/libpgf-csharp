@@ -10,5 +10,10 @@ namespace libpgf_csharp
 
         [DllImport("libpgfdll.dll", CallingConvention = CallingConvention.Cdecl)]
         public static extern bool SaveFont(IntPtr fontPtr, string FileName);
+
+        [DllImport("libpgfdll.dll", CallingConvention = CallingConvention.Cdecl)]
+        public static extern void FreeFont(IntPtr fontPtr);
     }
+
+
 }
